@@ -40,9 +40,6 @@ struct petRecord {
 	int apptMonth;
 	int apptDay;
 	int apptYear;
-
-	struct petRecord* next;
-	struct petRecord* previous;
 };
 
 
@@ -60,28 +57,20 @@ private:
 	int birthMonth, birthDay, birthYear;
 	int apptMonth, apptDay, apptYear;
 
-	// marks the first node in the linked list for all functions.
-	struct petRecord* headPtr;
-	// this is used to point to the present node in the linked list
-	// in several functions.
-	struct petRecord* currentPtr;
-	// This marks the next node in the linked list for some functions.
-	struct petRecord* nextPtr;
-	struct petRecord* previousPtr;
-	// This is used to point to a new node when creating the linked list.
-	struct petRecord* newPtr;
-	// This is used to point to the record that is to be deleted.
-	struct petRecord* deletePtr;
+	string ownerLastNameSearch;
+
+
+	// make a link object
+	list<petRecord> STLLinkedList;
+	list<petRecord>::iterator STLIterator;
+
+	// make a node for passing data to a container in the list
+	struct petRecord node;
+
+
 
 	int maxRecordNumber = 0;
 	bool matchFound = false;
-
-	// STL variables
-	// STL list class. Set up an object, STLLinkedList for petRecord.
-	list<petRecord> STLLinkedList;
-	list<petRecord> STLHeadIterator;
-	list<petRecord> STLIterator;
-
 
 	int i;
 
@@ -89,7 +78,6 @@ private:
 public:
 
 	/************************************************/
-/************************************************/
 	void initSTLLinkedList(ifstream& infileC) {
 
 		// infileC is the pointer to the input file created in main (infile).
@@ -107,33 +95,6 @@ public:
 		infileC >> apptDay;
 		infileC >> apptYear;
 
-#if DEBUG_initLinkedList == 1
-		// Verify that the data has been read in from the file correctly.
-		cout << "from infile: recordNumber: \t" << recordNumber << endl;
-		cout << "from infile: ownerLastName: \t" << ownerLastName << endl;
-		cout << "from infile: ownerFirstName: \t" << ownerFirstName << endl;
-		cout << "from infile: petName: \t\t" << petName << endl;
-		cout << "from infile: petType: \t\t" << petType << endl;
-		cout << "from infile: birthMonth: \t" << birthMonth << endl;
-		cout << "from infile: birthDay: \t" << birthDay << endl;
-		cout << "from infile: birthYear: \t" << birthYear << endl;
-		cout << "from infile: apptMonth: \t" << apptMonth << endl << endl;
-		cout << "from infile: apptDay: \t" << apptDay << endl << endl;
-		cout << "from infile: apptYear: \t" << apptYear << endl << endl;
-#endif
-
-
-		// I do not think that headPtr needs to be created in main. All of the linked list
-		// functions may be done in this class, so headPtr can be stored in the class and
-		// not in main. I do not think that main needs access to headPtr to provide it to 
-		// another function. I'll will see.
-		// create first node of linked list to store the first record from the file
-		headPtr = (struct petRecord*)malloc(sizeof(struct petRecord));
-		headPtr->previous = NULL;
-		headPtr->next = NULL;
-		currentPtr = headPtr;
-		newPtr = headPtr;
-
 
 		/****************************************************/
 		// creat struct record and fill with data from infile
@@ -141,61 +102,42 @@ public:
 		// I will figure that out later.
 		while (recordNumber != 99999) {
 
-			// Put the data into the node of the linked list.
-			// Store the recordNumber in the linked list node.
-			currentPtr->recordNumber = recordNumber;
+			// Put the data into the node structure.
+			node.recordNumber = recordNumber;
 
 			// track the maximum recordNumber for when it is time to add additional records
 			if (recordNumber > maxRecordNumber) maxRecordNumber = recordNumber;
 
-			// Store the ownerLastName in the linked list node.
+			// Store the ownerLastName in the node structure.
 			// The null character is not added to the string when read from the file, so it needs to be added here.
-			// the length() was put into i just so I could see that the length of the string was correct.
-			// The location of the allocated memory is stored in the char pointer in the node.
+			// The location of the allocated memory for strings is stored in the char pointer in the node.
 			// The string read from the file is then copied into the allocated memory.
-			// The printf is used to verify that the char pointer in the node points to the correct string.
 			ownerLastName.push_back('\0');
-			//i = ownerLastName.length();
-			currentPtr->ownerLastName = (char*)malloc(ownerLastName.length() + 1);
-			ownerLastName.copy(currentPtr->ownerLastName, ownerLastName.length());
+			node.ownerLastName = (char*)malloc(ownerLastName.length() + 1);
+			ownerLastName.copy(node.ownerLastName, ownerLastName.length());
 
-			ownerFirstName.push_back('\0'); // You need to add null character at the end to delimited the string.
-			//i = ownerFirstName.length();
-			currentPtr->ownerFirstName = (char*)malloc(ownerFirstName.length() + 1);
-			ownerFirstName.copy(currentPtr->ownerFirstName, ownerFirstName.length());
+			ownerFirstName.push_back('\0');
+			node.ownerFirstName = (char*)malloc(ownerFirstName.length() + 1);
+			ownerFirstName.copy(node.ownerFirstName, ownerFirstName.length());
 
-			petName.push_back('\0'); // You need to add null character at the end to delimited the string.
-			//i = petName.length();
-			currentPtr->petName = (char*)malloc(petName.length() + 1);
-			petName.copy(currentPtr->petName, petName.length());
+			petName.push_back('\0');
+			node.petName = (char*)malloc(petName.length() + 1);
+			petName.copy(node.petName, petName.length());
 
-			petType.push_back('\0'); // You need to add null character at the end to delimited the string.
-			//i = petType.length();
-			currentPtr->petType = (char*)malloc(petType.length() + 1);
-			petType.copy(currentPtr->petType, petType.length());
+			petType.push_back('\0');
+			node.petType = (char*)malloc(petType.length() + 1);
+			petType.copy(node.petType, petType.length());
 
-			currentPtr->birthMonth = birthMonth;
-			currentPtr->birthDay = birthDay;
-			currentPtr->birthYear = birthYear;
+			node.birthMonth = birthMonth;
+			node.birthDay = birthDay;
+			node.birthYear = birthYear;
 
-			currentPtr->apptMonth = apptMonth;
-			currentPtr->apptDay = apptDay;
-			currentPtr->apptYear = apptYear;
+			node.apptMonth = apptMonth;
+			node.apptDay = apptDay;
+			node.apptYear = apptYear;
 
-#if DEBUG_initLinkedList == 1
-			// Print out data from currentPtr to see that data was properly inserted into the node.
-			printf("%s\t%d\n", "currentPtr->recordNumber:", currentPtr->recordNumber);
-			printf("%s\t%s\n", "currentPtr->ownerLastName:", currentPtr->ownerLastName);
-			printf("%s\t%s\n", "currentPtr->ownerFirstName:", currentPtr->ownerFirstName);
-			printf("%s\t\t%s\n", "currentPtr->petName:", currentPtr->petName);
-			printf("%s\t\t%s\n", "currentPtr->petType:", currentPtr->petType);
-			printf("%s\t\t%s\n", "currentPtr->birthMonth", currentPtr->birthMonth);
-			printf("%s\t\t%s\n", "currentPtr->birthDay", currentPtr->birthDay);
-			printf("%s\t\t%s\n", "currentPtr->birthDay", currentPtr->birthDay);
-			printf("%s\t%s\n", "currentPtr->ApptMonth:", currentPtr->ApptMonth);
-			printf("%s\t%s\n", "currentPtr->ApptDay:", currentPtr->ApptDay);
-			printf("%s\t%s\n", "currentPtr->ApptYear:", currentPtr->ApptYear);
-#endif
+			// Put the information from the node structure into the list
+			STLLinkedList.push_back(node);
 
 			// Get next line from infile
 			infileC >> recordNumber;
@@ -209,50 +151,84 @@ public:
 			infileC >> apptMonth;
 			infileC >> apptDay;
 			infileC >> apptYear;
+		}
+	}
 
-#if DEBUG_initLinkedList == 1
-			// Verify that the data has been read in from the file correctly.
-			cout << "from infile: recordNumber: \t" << recordNumber << endl;
-			cout << "from infile: ownerLastName: \t" << ownerLastName << endl;
-			cout << "from infile: ownerFirstName: \t" << ownerFirstName << endl;
-			cout << "from infile: petName: \t\t" << petName << endl;
-			cout << "from infile: petType: \t\t" << petType << endl;
-			cout << "from infile: birthMonth: \t" << birthMonth << endl;
-			cout << "from infile: birthDay: \t" << birthDay << endl;
-			cout << "from infile: birthYear: \t" << birthYear << endl;
-			cout << "from infile: ApptMonth: \t" << ApptMonth << endl << endl << endl;
-			cout << "from infile: ApptDay: \t" << ApptDay << endl << endl << endl;
-			cout << "from infile: ApptYear: \t" << ApptYear << endl << endl << endl;
-#endif
+	/*****************************************/
+	void displaySTLLastNames() {
+		// Traverse the list to print out the last names.
+		i = 0;
+		STLIterator = STLLinkedList.begin();
+		for (STLIterator; STLIterator != STLLinkedList.end(); STLIterator++) {
+			ownerLastName = STLIterator->ownerLastName;
 
-			// See if the end of the file has been reached.
-			if (recordNumber != 99999) {
-				// The end of the text file has not been reached, so create a new node
-				// in the linked list then go back to the start of the while loop to 
-				// populate the new node.
+			cout << STLIterator->ownerLastName;
+			if (ownerLastName.length() > 7) cout << "\t";
+			else cout << "\t\t";
 
-				// create next node struct to store the data from file record
-				newPtr = (struct petRecord*)malloc(sizeof(struct petRecord));
-				newPtr->next = NULL;
-				currentPtr->next = newPtr;
-				newPtr->previous = currentPtr;
-				currentPtr = newPtr;
+			if (i > 5) {
+				cout << endl;
+				i = 0;
 			}
 			else {
-				/* If the end of the test file has been reached, then the next in the current node has
-				already been set to NULL, so there is nothing more to do because the end of the linked
-				list has already been marked. */
-				// This else statement does not need to be here, but it is here so I can catch the end of
-				// the file in the debugger.
-
-#if DEBUG_initLinkedList == 1
-				printf("%s\t%d\n\n", "recordNumber:", recordNumber);
-				printf("%s\t%d\n\n", "maxRecordNumber:", maxRecordNumber);
-#endif
-
+				i++;
 			}
-
 		}
+
+		cout << endl << endl;
+	}
+
+	/*****************************************/
+	void deleteSTLEntry(string LastName) {
+		STLIterator = STLLinkedList.begin();
+		while (STLIterator != STLLinkedList.end()) {
+			ownerLastName = STLIterator->ownerLastName;
+			if (ownerLastName.compare(LastName) == 0) {
+				STLLinkedList.erase(STLIterator);
+				STLIterator = STLLinkedList.end();
+			}
+			else
+				STLIterator++;
+		}
+
+	}
+
+	/*****************************************/
+	void addSTLEntry(int rNumber, 
+		string oLastName, string oFirstName, 
+		string pName, string pType, 
+		int bMonth, int bDay, int bYear,
+		int aMonth, int aDay, int aYear) 
+	{
+
+		node.recordNumber = rNumber;
+
+		oLastName.push_back('\0');
+		node.ownerLastName = (char*)malloc(oLastName.length() + 1);
+		oLastName.copy(node.ownerLastName, oLastName.length());
+
+		oFirstName.push_back('\0');
+		node.ownerFirstName = (char*)malloc(oFirstName.length() + 1);
+		oFirstName.copy(node.ownerFirstName, oFirstName.length());
+
+		pName.push_back('\0');
+		node.petName = (char*)malloc(pName.length() + 1);
+		pName.copy(node.petName, pName.length());
+
+		pType.push_back('\0');
+		node.petType = (char*)malloc(pType.length() + 1);
+		pType.copy(node.petType, pType.length());
+
+		node.birthMonth = bMonth;
+		node.birthDay = bDay;
+		node.birthYear = bYear;
+
+		node.apptMonth = aMonth;
+		node.apptDay = aDay;
+		node.apptYear = aYear;
+
+		STLLinkedList.push_back(node);
+
 	}
 
 
